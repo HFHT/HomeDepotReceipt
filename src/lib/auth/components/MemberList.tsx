@@ -3,6 +3,7 @@ import { IconSearch } from "@tabler/icons-react";
 import { useAuthStore } from "../stores/authStore";
 import { useState } from "react";
 import { AzureADMember } from "../config/msalConfig";
+import { useNoMobileKeyboard } from "../../theme/hooks/useNoMobileKeyboard";
 
 /**
  * A searchable combobox component for selecting an Azure AD (Entra ID) organization member.
@@ -24,6 +25,8 @@ import { AzureADMember } from "../config/msalConfig";
  * @returns The rendered member selection combobox.
  */
 export function MemberList() {
+    const kbProps = useNoMobileKeyboard();
+
     /** Mantine combobox controller managing dropdown open/close state. */
     const combobox = useCombobox();
 
@@ -108,6 +111,7 @@ export function MemberList() {
                         }}
                         onClick={() => combobox.openDropdown()}
                         onFocus={() => combobox.openDropdown()}
+                        {...kbProps}
                     />
                 </Combobox.Target>
                 <Combobox.Dropdown>

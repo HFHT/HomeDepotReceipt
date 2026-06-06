@@ -8,6 +8,7 @@ import { PHASE_OPTIONS, PROJECT_OPTIONS } from './options';
 import { useReceiptCaptureStore } from '../../lib/receipts/stores/receiptCaptureStore';
 import { MemberList } from '../../lib/auth/components/MemberList';
 import { JSX } from 'react';
+import { useNoMobileKeyboard } from '../../lib/theme/hooks/useNoMobileKeyboard';
 
 /**
  * Renders the workflow's first step. `MemberList` writes the chosen member to
@@ -17,6 +18,7 @@ import { JSX } from 'react';
  * @returns The details capture step.
  */
 export function DetailsStep(): JSX.Element {
+  const kbProps = useNoMobileKeyboard();
   const project = useReceiptCaptureStore((s) => s.project);
   const setProject = useReceiptCaptureStore((s) => s.setProject);
   const lotNumbers = useReceiptCaptureStore((s) => s.lotNumbers);
@@ -39,6 +41,7 @@ export function DetailsStep(): JSX.Element {
         onChange={setProject}
         searchable
         required
+        {...kbProps}
       />
 
       <Textarea
@@ -60,6 +63,7 @@ export function DetailsStep(): JSX.Element {
         searchable
         clearable
         required
+        {...kbProps}
       />
     </Stack>
   );
