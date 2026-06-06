@@ -6,6 +6,7 @@
 
 import { JSX, useMemo, useState } from 'react';
 import {
+  Box,
   Button,
   Container,
   Group,
@@ -14,6 +15,7 @@ import {
   Stack,
   Stepper,
 } from '@mantine/core';
+import { useMediaQuery } from '@mantine/hooks';
 import { notifications } from '@mantine/notifications';
 import { analyzeReceiptImages } from '../services/receiptAnalysisService';
 import { saveReceiptSubmission } from '../services/receiptSubmissionService';
@@ -24,6 +26,7 @@ import { ReviewStep } from './homeDepotReceipts/ReviewStep';
 import { useAuthStore } from '../lib/auth/stores/authStore';
 import { useReceiptCaptureStore } from '../lib/receipts/stores/receiptCaptureStore';
 import { ReceiptSubmission } from '../lib/receipts/types';
+import { IconCamera, IconCloudUp, IconReceipt } from '@tabler/icons-react';
 
 /** Wizard step indices. */
 const STEP = {
@@ -39,6 +42,12 @@ const STEP = {
  */
 export function HomeDepotReceiptsRoute(): JSX.Element {
   const [active, setActive] = useState<number>(STEP.DETAILS);
+
+  /**
+   * True on small viewports; used to collapse each Stepper.Step down to just its
+   * icon by suppressing the label/description text.
+   */
+  const isSmallScreen = useMediaQuery('(max-width: 48em)');
 
   // Member selection comes from the shared auth store (set by <MemberList />).
   const selectedMember = useAuthStore((s) => s.selectedMember);
@@ -155,10 +164,10 @@ export function HomeDepotReceiptsRoute(): JSX.Element {
     const submission: ReceiptSubmission = {
       member: selectedMember
         ? {
-            id: selectedMember.id,
-            name: selectedMember.displayName,
-            email: selectedMember.mail ?? null,
-          }
+          id: selectedMember.id,
+          name: selectedMember.displayName,
+          email: selectedMember.mail ?? null,
+        }
         : null,
       project: project ?? '',
       lotNumbers,
@@ -191,88 +200,131 @@ export function HomeDepotReceiptsRoute(): JSX.Element {
     }
   };
 
+  /**
+   * Renders the content for the currently active wizard step. Step content is
+   * kept separate from the (now sticky) Stepper navigation so that only the
+   * navigation and action buttons remain pinned while content scrolls.
+   *
+   * @returns The active step's content.
+   */
+  const renderStepContent = (): JSX.Element | null => {
+    switch (active) {
+      case STEP.DETAILS:
+        return (
+          <Stack mt="lg">
+            <DetailsStep />
+          </Stack>
+        );
+      case STEP.CAPTURE:
+        return (
+          <Stack mt="lg">
+            <CaptureStep />
+            {failures.length > 0 && (
+              <AnalysisFailures failures={failures} onRetake={handleRetake} />
+            )}
+          </Stack>
+        );
+      case STEP.REVIEW:
+        return (
+          <Stack mt="lg">
+            <ReviewStep />
+          </Stack>
+        );
+      default:
+        return null;
+    }
+  };
+
   return (
     <Container size="lg" py="lg">
       <Paper withBorder radius="md" p="lg">
-        <Stepper active={active} onStepClick={setActive} color="habitatGreen">
-          <Stepper.Step
-            label="Details"
-            description="Member & project"
-            allowStepSelect={false}
+        {/*
+          Sticky header: the Stepper navigation and the action buttons stay
+          pinned to the top of the scrollable AppShell.Main region while the
+          step content scrolls beneath them.
+        */}
+        <Box
+          pos="sticky"
+          top={0}
+          style={(theme) => ({
+            zIndex: 2,
+            backgroundColor: 'var(--mantine-color-body)',
+            paddingTop: theme.spacing.xs,
+            paddingBottom: theme.spacing.xs,
+          })}
+        >
+          <Stepper
+            active={active}
+            onStepClick={setActive}
+            color="habitatGreen"
           >
-            <Stack mt="lg">
-              <DetailsStep />
-            </Stack>
-          </Stepper.Step>
+            <Stepper.Step
+              icon={<IconReceipt stroke={2} />}
+              label={isSmallScreen ? undefined : 'Details'}
+              description={isSmallScreen ? undefined : 'Member & project'}
+              allowStepSelect={false}
+            />
 
-          <Stepper.Step
-            label="Capture"
-            description="Receipt images"
-            allowStepSelect={false}
-          >
-            <Stack mt="lg">
-              <CaptureStep />
-              {failures.length > 0 && (
-                <AnalysisFailures
-                  failures={failures}
-                  onRetake={handleRetake}
-                />
-              )}
-            </Stack>
-          </Stepper.Step>
+            <Stepper.Step
+              icon={<IconCamera stroke={2} />}
+              label={isSmallScreen ? undefined : 'Capture'}
+              description={isSmallScreen ? undefined : 'Receipt images'}
+              allowStepSelect={false}
+            />
 
-          <Stepper.Step
-            label="Review"
-            description="Edit & submit"
-            allowStepSelect={false}
-          >
-            <Stack mt="lg">
-              <ReviewStep />
-            </Stack>
-          </Stepper.Step>
-        </Stepper>
+            <Stepper.Step
+              icon={<IconCloudUp stroke={2} />}
+              label={isSmallScreen ? undefined : 'Review'}
+              description={isSmallScreen ? undefined : 'Edit & submit'}
+              allowStepSelect={false}
+            />
+          </Stepper>
 
-        <Group justify="space-between" mt="xl">
-          <Button
-            variant="default"
-            disabled={active === STEP.DETAILS || isAnalyzing || isSubmitting}
-            onClick={() => setActive((s) => Math.max(STEP.DETAILS, s - 1))}
-          >
-            Back
-          </Button>
-
-          {active === STEP.DETAILS && (
+          <Group justify="space-between" mt="md">
             <Button
-              color="habitatGreen"
-              disabled={!detailsValid()}
-              onClick={() => setActive(STEP.CAPTURE)}
+              variant="default"
+              disabled={active === STEP.DETAILS || isAnalyzing || isSubmitting}
+              onClick={() => setActive((s) => Math.max(STEP.DETAILS, s - 1))}
             >
-              Next
+              Back
             </Button>
-          )}
 
-          {active === STEP.CAPTURE && (
-            <Button
-              color="habitatGreen"
-              disabled={images.length === 0 || isAnalyzing}
-              leftSection={isAnalyzing ? <Loader size={16} /> : undefined}
-              onClick={handleAnalyzeAndContinue}
-            >
-              {isAnalyzing ? 'Analyzing…' : 'Analyze & continue'}
-            </Button>
-          )}
+            {active === STEP.DETAILS && (
+              <Button
+                color="habitatGreen"
+                disabled={!detailsValid()}
+                onClick={() => setActive(STEP.CAPTURE)}
+              >
+                Next
+              </Button>
+            )}
 
-          {active === STEP.REVIEW && (
-            <Button
-              color="habitatGreen"
-              loading={isSubmitting}
-              disabled={editableReceipts.length === 0}
-              onClick={handleSubmit}
-            >
-              Submit
-            </Button>
-          )}
-        </Group>
+            {active === STEP.CAPTURE && (
+              <Button
+                color="habitatGreen"
+                disabled={images.length === 0 || isAnalyzing}
+                leftSection={isAnalyzing ? <Loader size={16} /> : undefined}
+                onClick={handleAnalyzeAndContinue}
+              >
+                {isAnalyzing ? 'Analyzing…' : 'Analyze & continue'}
+              </Button>
+            )}
+
+            {active === STEP.REVIEW && (
+              <Button
+                color="habitatGreen"
+                loading={isSubmitting}
+                disabled={editableReceipts.length === 0}
+                onClick={handleSubmit}
+              >
+                Submit
+              </Button>
+            )}
+          </Group>
+        </Box>
+
+        {/* Scrollable step content, rendered outside the sticky header. */}
+        {renderStepContent()}
       </Paper>
     </Container>
   );

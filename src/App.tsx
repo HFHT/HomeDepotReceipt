@@ -61,7 +61,7 @@ export function App() {
   return (
     <>
       <UnauthenticatedTemplate>
-        <Login />
+        <Login title='Habitat Home Depot Receipt' desc='Building hope through staff productivity.'/>
       </UnauthenticatedTemplate>
       <AuthenticatedTemplate>
         <RouterProvider>

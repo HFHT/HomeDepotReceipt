@@ -8,7 +8,7 @@ import { MicrosoftAuthProvider, msalInstance } from './lib/auth/components/Micro
 
 /**
  * Initialize MSAL before rendering. `initialize()` is required for
- * @azure/msal-browser v3+. 
+ * @azure/msal-browser v3+.
  */
 async function bootstrap() {
   await msalInstance.initialize();

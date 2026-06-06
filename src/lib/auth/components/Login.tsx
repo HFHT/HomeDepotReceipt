@@ -37,7 +37,11 @@ import { loginRequest } from '../config/msalConfig';
  * }
  * ```
  */
-export function Login() {
+interface LoginInterface {
+  title: string,
+  desc: string
+}
+export function Login({ title, desc }: LoginInterface) {
   /**
    * The MSAL instance used to initiate the Microsoft authentication flow.
    * @see {@link useMsal}
@@ -57,10 +61,10 @@ export function Login() {
             <IconHomeHeart size={48} />
           </ThemeIcon>
           <Title order={2} ta="center" c="habitatBlue">
-            Habitat IT Inventory
+            {title}
           </Title>
           <Text c="dimmed" ta="center" size="sm">
-            Building hope through staff productivity.
+            {desc}
           </Text>
           <Button
             fullWidth
