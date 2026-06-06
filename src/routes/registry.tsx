@@ -1,38 +1,8 @@
-import type { ReactNode } from 'react';
-import type { Icon } from '@tabler/icons-react';
-import { IconHome, IconReceipt, IconSettings } from '@tabler/icons-react';
-import { Home, Settings } from '.';
+import { IconHistory, IconReceipt, IconSettings } from '@tabler/icons-react';
+import { Settings, History } from '.';
 import { HomeDepotReceiptsRoute } from './HomeDepotReceiptsRoute';
+import { AppRoute, NavMeta } from '../lib/router/types';
 
-/**
- * Navigation metadata attached to a route when it should appear in the
- * primary navigation (desktop sidebar / mobile bottom bar).
- *
- * @typedef {Object} NavMeta
- * @property {string} label - Human-readable text shown in the nav.
- * @property {Icon} icon - Tabler icon component rendered for the item.
- * @property {number} [order] - Optional sort order within the nav.
- */
-export interface NavMeta {
-  label: string;
-  icon: Icon;
-  order?: number;
-}
-
-/**
- * Single source of truth describing an application route: its hash path,
- * the element to render, and optional navigation metadata.
- *
- * @typedef {Object} AppRoute
- * @property {string} path - Hash-router path (e.g. `'/settings'`).
- * @property {ReactNode} element - Element rendered when the route is active.
- * @property {NavMeta} [nav] - Present only if the route appears in the nav.
- */
-export interface AppRoute {
-  path: string;
-  element: ReactNode;
-  nav?: NavMeta;
-}
 
 /**
  * The canonical list of application routes. Both the router (for rendering)
@@ -43,23 +13,23 @@ export interface AppRoute {
  */
 export const appRoutes: AppRoute[] = [
   {
-    path: '/',
-    element: <Home />,
-    nav: { label: 'Home', icon: IconHome, order: 0 },
-  },
-  {
     path: 'home-depot-receipts',
     element: <HomeDepotReceiptsRoute />,
     nav: {
-      label: 'Home Depot Receipts',
+      label: 'New Receipt',
       icon: IconReceipt,
-      order: 40, // adjust to position within the existing menu
+      order: 5, // adjust to position within the existing menu
     },
+  },
+  {
+    path: 'history',
+    element: <History />,
+    nav: { label: 'History', icon: IconHistory, order: 10 },
   },
   {
     path: '/settings',
     element: <Settings />,
-    nav: { label: 'Settings', icon: IconSettings, order: 1 },
+    nav: { label: 'Settings', icon: IconSettings, order: 50 },
   },
 ];
 
