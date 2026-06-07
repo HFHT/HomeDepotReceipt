@@ -1,5 +1,40 @@
+// import React from 'react';
+// import ReactDOM from 'react-dom/client';
+// import { App } from './App';
+// import { MantineProvider } from '@mantine/core';
+// import { Notifications } from '@mantine/notifications';
+// import { hfhTheme } from './lib/theme/habitatTheme';
+// import { MicrosoftAuthProvider, msalInstance } from './lib/auth/components/MicrosoftAuth';
+
+// /**
+//  * Initialize MSAL before rendering. `initialize()` is required for
+//  * @azure/msal-browser v3+.
+//  */
+// async function bootstrap() {
+//   await msalInstance.initialize();
+
+//   // Handle redirect-style logins (no-op for popup flow but safe to call).
+//   await msalInstance.handleRedirectPromise().catch((err) => {
+//     console.error('MSAL redirect handling failed', err);
+//   });
+
+//   ReactDOM.createRoot(document.getElementById('root')!).render(
+//     <React.StrictMode>
+//       <MicrosoftAuthProvider>
+//         <MantineProvider theme={hfhTheme} defaultColorScheme="light">
+//           <Notifications position="top-right" />
+//           <App />
+//         </MantineProvider>
+//       </MicrosoftAuthProvider>
+//     </React.StrictMode>
+//   );
+// }
+
+// bootstrap();
+
 import React from 'react';
 import ReactDOM from 'react-dom/client';
+import { BrowserRouter } from 'react-router-dom';
 import { App } from './App';
 import { MantineProvider } from '@mantine/core';
 import { Notifications } from '@mantine/notifications';
@@ -9,6 +44,11 @@ import { MicrosoftAuthProvider, msalInstance } from './lib/auth/components/Micro
 /**
  * Initialize MSAL before rendering. `initialize()` is required for
  * @azure/msal-browser v3+.
+ *
+ * @remarks
+ * The app is wrapped in a {@link BrowserRouter} (HTML5 history API). This relies
+ * on the Static Web App `navigationFallback` rewrite in `staticwebapp.config.json`
+ * to serve `index.html` for deep links so client-side routing can take over.
  */
 async function bootstrap() {
   await msalInstance.initialize();
@@ -23,7 +63,9 @@ async function bootstrap() {
       <MicrosoftAuthProvider>
         <MantineProvider theme={hfhTheme} defaultColorScheme="light">
           <Notifications position="top-right" />
-          <App />
+          <BrowserRouter>
+            <App />
+          </BrowserRouter>
         </MantineProvider>
       </MicrosoftAuthProvider>
     </React.StrictMode>

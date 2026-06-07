@@ -31,7 +31,7 @@ import { loginRequest } from '../config/msalConfig';
  * function App() {
  *   return (
  *     <UnauthenticatedTemplate>
- *       <Login />
+ *       <Login title='title' desc='description' />
  *     </UnauthenticatedTemplate>
  *   );
  * }
@@ -76,7 +76,7 @@ export function Login({ title, desc }: LoginInterface) {
             Sign in with Microsoft
           </Button>
           <Text c="dimmed" size="xs" ta="center">
-            Authorized Habitat for Humanity personnel only
+            Authorized Habitat for Humanity Tucson personnel only
           </Text>
         </Stack>
       </Card>

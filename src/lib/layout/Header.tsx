@@ -59,7 +59,7 @@ export function Header() {
                         Habitat Tucson
                     </Text>
                     <Text c="white" size="xs" opacity={0.9}>
-                        Home Depot Receipts
+                        Home Depot&reg; Receipts
                     </Text>
                 </div>
             </Group>
