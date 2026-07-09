@@ -43,14 +43,13 @@ export function ReceiptLineItemsSection({
 
   // Define column widths
   const columnWidths = [
-    '20%', // SKU/UPC
-    '45%', // Title
-    '5%', // Qty
-    '10%', // Unit Price
-    '10%', // Discount
-    '10%', // Total
+    '19%', // SKU/UPC
+    '38%', // Title
+    '10%', // Qty
+    '15%', // Unit Price
+    '15%', // Discount
+    '17%', // Total
   ];
-
   return (
     <Stack gap="sm">
       <Group justify="space-between">
