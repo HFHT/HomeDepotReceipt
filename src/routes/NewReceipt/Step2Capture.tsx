@@ -153,9 +153,8 @@ export function Step2Capture() {
       </Group>
 
       <Group>
-        {/* On mobile browsers, accept="image/*" typically surfaces a camera
-            option in the native picker alongside the photo library. */}
-        <FileButton onChange={handleFilesSelected} accept="image/*" multiple>
+        {/* capture="environment" forces the rear camera on mobile devices */}
+        <FileButton onChange={handleFilesSelected} accept="image/*" multiple capture='environment'>
           {(props) => (
             <Button {...props} leftSection={<IconCamera size={16} />} variant="outline">
               Take Photo
