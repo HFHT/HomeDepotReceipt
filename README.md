@@ -22,5 +22,5 @@ Check the new prompt
 - Look for Balance Due
 
 Image resize
-Check the image resize.
+Check the image resize. 
 
