@@ -36,6 +36,19 @@ interface AuthState {
   members: AzureADMember[] | null;
 
   selectedMember: AzureADMember | null;
+
+  /** 
+   * Object URL pointing to the signed-in user's cached avatar photo blob.
+   * 'null' when the user has no photo, or none has been resolved yet.
+   */
+  avatarUrl: string | null;
+
+  /**
+   * 'true' while the avatar phot is being resolved (IndexedDB lookup or
+   * Graph fetch). Used by {@link Header} to render an initials placeholder.
+   */
+  avatarLoading: boolean;
+
   /**
    * Updates the authenticated user's account information in the store.
    *
@@ -60,6 +73,12 @@ interface AuthState {
    */
   setMembers: (members: AzureADMember[] | null) => void;
   setSelectedMember: (member: AzureADMember | null) => void;
+
+  setAvatarUrl: (avatarUrl: string | null) => void;
+  setAvatarLoading: (avatarLoading: boolean) => void;
+
+   /** Resets all authentication-related state (used on sign-out). */
+   resetAuth: () => void;
 }
 
 /**
@@ -88,6 +107,8 @@ export const useAuthStore = create<AuthState>((set) => ({
   accessToken: null,
   members: null,
   selectedMember: null,
+  avatarUrl: null,
+  avatarLoading: false,
   /**
    * @inheritdoc
    */
@@ -102,5 +123,17 @@ export const useAuthStore = create<AuthState>((set) => ({
    * @inheritdoc
    */
   setMembers: (members: AzureADMember[] | null) => set({ members }),
-  setSelectedMember: (selectedMember: AzureADMember | null) => set({ selectedMember })
+  setSelectedMember: (selectedMember: AzureADMember | null) => set({ selectedMember }),
+  setAvatarUrl: (avatarUrl) => set({ avatarUrl }),
+  setAvatarLoading: (avatarLoading) => set({ avatarLoading }),
+
+  resetAuth: ()=> 
+  set({
+    account:null,
+    accessToken: null,
+    members: null,
+    selectedMember: null,
+    avatarUrl: null,
+    avatarLoading: false,
+  }),
 }));

@@ -1,75 +1,26 @@
-# React + TypeScript + Vite
+# Home Depot Receipt Receipt Submission 
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+## Todo
+Step 3
+Change error handling, first do images then the mongo meta data, if an image fails then have a modal popup and allow retry or allow to bypass with warning to provide the hardcopy receipts to finance, if mongo upload fails then do not clear the form.
 
-Currently, two official plugins are available:
+Step 2
+Change text on button to "Continue To Review" if the the response is not failed and the user hasn't modified any of the files. If a file is modified or deleted then set button text back to "Analyze & Continue"
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+If the returned receipt number and receipt date is in the history then flag but allow the user to continue anyway. 
 
-## React Compiler
+Step 1
+Persist the Member object in localStorage and load it from there if it exists (remember the submitter). 
+After leaving and coming back, the Member object is lost so a blank user is saved to Mongo DB.
 
-The React Compiler is enabled on this template. See [this documentation](https://react.dev/learn/react-compiler) for more information.
+Some project / subdivision don't require Phases
 
-Note: This will impact Vite dev & build performances.
+Prompt
+Check the new prompt
+- only show discount at the receipt level, remove it from the line items. 
+- receipt_date only YYYY-MM-DD
+- Look for Balance Due
 
-## Expanding the ESLint configuration
+Image resize
+Check the image resize.
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
-
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
-
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
-
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
-
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```

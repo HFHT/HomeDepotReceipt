@@ -29,7 +29,6 @@ export async function uploadReceipt(
 }
 
 app.http('uploadReceipt', {
-  route: 'receipts/upload',
   methods: ['POST'],
   authLevel: 'anonymous',
   handler: uploadReceipt
