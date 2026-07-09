@@ -1,4 +1,4 @@
-import { ActionIcon, Button, Card, Group, NumberInput, SimpleGrid, Stack, Table, TextInput } from '@mantine/core';
+import { ActionIcon, Button, Card, Group, NumberInput, SimpleGrid, Stack, Table, Textarea, TextInput } from '@mantine/core';
 import { IconPlus, IconTrash } from '@tabler/icons-react';
 import { UseFormReturnType } from '@mantine/form';
 import { ReceiptAnalysisResponse, ReceiptAnalysisResponseItems } from '../../types/ReceiptAnalysis';
@@ -41,6 +41,16 @@ export function ReceiptLineItemsSection({
   const removeItem = (index: number) => form.removeListItem('line_items', index);
   const addItem = () => form.insertListItem('line_items', emptyLineItem());
 
+  // Define column widths
+  const columnWidths = [
+    '20%', // SKU/UPC
+    '45%', // Title
+    '5%', // Qty
+    '10%', // Unit Price
+    '10%', // Discount
+    '10%', // Total
+  ];
+
   return (
     <Stack gap="sm">
       <Group justify="space-between">
@@ -58,11 +68,13 @@ export function ReceiptLineItemsSection({
           <Card key={item.id} withBorder padding="sm" radius="md">
             <Stack gap="xs">
               <Group justify="space-between" align="flex-start" wrap="nowrap">
-                <TextInput
+                <Textarea
                   readOnly={readOnly}
                   size="sm"
                   label={<FieldLabel label="Title" edited={isLineItemFieldEdited(item.id, 'title')} />}
                   style={{ flex: 1 }}
+                  autosize
+                  minRows={1}
                   {...form.getInputProps(`line_items.${index}.title` as never)}
                 />
                 {!readOnly && (
@@ -125,6 +137,12 @@ export function ReceiptLineItemsSection({
 
       {/* --- Tablet/desktop layout: table --- */}
       <Table striped withTableBorder verticalSpacing="xs" visibleFrom="sm">
+        <colgroup>
+          {columnWidths.map((width, index) => (
+            <col key={index} style={{ width }} />
+          ))}
+          {!readOnly && <col style={{ width: '5%' }} />}
+        </colgroup>
         <Table.Thead>
           <Table.Tr>
             <Table.Th>SKU/UPC</Table.Th>
@@ -148,10 +166,19 @@ export function ReceiptLineItemsSection({
                 />
               </Table.Td>
               <Table.Td>
-                <TextInput
+                {/* <TextInput
                   readOnly={readOnly}
                   size="xs"
                   label={<FieldLabel edited={isLineItemFieldEdited(item.id, 'title')} />}
+                  {...form.getInputProps(`line_items.${index}.title` as never)}
+                /> */}
+                <Textarea
+                  readOnly={readOnly}
+                  size="xs"
+                  label={<FieldLabel label="Title" edited={isLineItemFieldEdited(item.id, 'title')} />}
+                  style={{ flex: 1 }}
+                  autosize
+                  minRows={1}
                   {...form.getInputProps(`line_items.${index}.title` as never)}
                 />
               </Table.Td>
