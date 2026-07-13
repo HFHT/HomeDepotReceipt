@@ -2,7 +2,7 @@ import { ActionIcon, Badge, Button, Card, FileButton, Group, Image, Stack, Text 
 import { IconGripVertical, IconTrash } from '@tabler/icons-react';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
-import { StoredImage } from '../../types/ReceiptImage';
+import { StoredImage } from '../../../types/ReceiptImage';
 
 interface SortableImageCardProps {
   image: StoredImage;

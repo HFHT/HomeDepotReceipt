@@ -1,7 +1,7 @@
 import { ActionIcon, Button, Card, Group, NumberInput, SimpleGrid, Stack, Table, Textarea, TextInput } from '@mantine/core';
 import { IconPlus, IconTrash } from '@tabler/icons-react';
 import { UseFormReturnType } from '@mantine/form';
-import { ReceiptAnalysisResponse, ReceiptAnalysisResponseItems } from '../../types/ReceiptAnalysis';
+import { ReceiptAnalysisResponse, ReceiptAnalysisResponseItems } from '../../../types/ReceiptAnalysis';
 import { FieldLabel } from './FieldLabel';
 
 interface ReceiptLineItemsSectionProps {

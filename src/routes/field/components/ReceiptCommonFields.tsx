@@ -1,6 +1,6 @@
 import { Badge, NumberInput, SimpleGrid, Stack, TextInput } from '@mantine/core';
 import { UseFormReturnType } from '@mantine/form';
-import { ReceiptAnalysisResponse } from '../../types/ReceiptAnalysis';
+import { ReceiptAnalysisResponse } from '../../../types/ReceiptAnalysis';
 import { FieldLabel } from './FieldLabel';
 
 /** Receipt-level (non-line-item) fields tracked for edit/history diffing. */

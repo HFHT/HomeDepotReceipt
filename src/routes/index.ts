@@ -1,3 +1,3 @@
 export * from './NotFound'
-export * from './History'
-export * from './Settings'
+export * from './field/pages/History'
+export * from './field/pages/Settings'

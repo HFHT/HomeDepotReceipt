@@ -2,10 +2,10 @@ import { useEffect } from 'react';
 import { Box, Stepper } from '@mantine/core';
 import { useMediaQuery } from '@mantine/hooks';
 import { IconReceipt, IconCamera, IconCloudUp } from '@tabler/icons-react';
-import { useReceiptStore } from '../stores/receiptStore';
-import { Step1Details } from './NewReceipt/Step1Details';
-import { Step2Capture } from './NewReceipt/Step2Capture';
-import { Step3Review } from './NewReceipt/Step3Review';
+import { useReceiptStore } from '../../../stores/receiptStore';
+import { Step1Details } from '../components/Step1Details';
+import { Step2Capture } from '../components/Step2Capture';
+import { Step3Review } from '../components/Step3Review';
 
 
 /**

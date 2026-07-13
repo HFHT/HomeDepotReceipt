@@ -17,10 +17,10 @@ import {
 import { useDebouncedValue, useMediaQuery } from '@mantine/hooks';
 import { IconChevronDown, IconChevronUp, IconSearch } from '@tabler/icons-react';
 import { notifications } from '@mantine/notifications';
-import { useAuthStore } from '../lib/auth/stores/authStore';
-import { getReceipts } from '../services/receiptService';
-import { ReceiptHistoryResponse } from '../types/ReceiptHistory';
-import { ReceiptReviewForm } from './NewReceipt/ReceiptReviewForm';
+import { useAuthStore } from '../../../lib/auth/stores/authStore';
+import { getReceipts } from '../../../services/receiptService';
+import { ReceiptHistoryResponse } from '../../../types/ReceiptHistory';
+import { ReceiptReviewForm } from '../components/ReceiptReviewForm';
 
 type HistoryEntry = ReceiptHistoryResponse['history'][number];
 type SortField = 'status' | 'receipt_number' | 'date' | 'total' | 'projectOrSubdivision' | 'lotOrProjectNumbers';

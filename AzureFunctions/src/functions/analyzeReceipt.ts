@@ -1,86 +1,30 @@
+
 import {
   app,
   HttpRequest,
   HttpResponseInit,
   InvocationContext,
 } from "@azure/functions";
-import { randomUUID } from "crypto";
 import Anthropic from "@anthropic-ai/sdk";
 
-import { SYSTEM_PROMPT } from "../prompt";
-import { getAnthropicClient, CLAUDE_MODEL, CLAUDE_MAX_TOKENS } from "../anthropicClient";
+import { getAnthropicClient } from "../anthropicClient";
+import { ReceiptAnalysisRequestSchema } from "../types";
 import {
-  ReceiptAnalysisRequestSchema,
-  ReceiptAnalysisResponseSchema,
-  ReceiptAnalysisResponse,
-} from "../types";
-
-const MAX_IMAGE_BYTES = 5 * 1024 * 1024; // Anthropic's per-image limit is ~5MB
-
-// Narrow ImageBlockParam["source"] (a union of Base64ImageSource | URLImageSource)
-// down to just the base64 variant so we can safely reference `media_type`.
-type Base64ImageSource = Extract<
-  Anthropic.Messages.ImageBlockParam["source"],
-  { type: "base64" }
->;
-
-/**
- * Rough estimate of decoded byte size from a base64 string length,
- * without actually decoding (avoids allocating large buffers just to check).
- */
-function estimateBase64ByteLength(base64: string): number {
-  const cleaned = base64.replace(/=+$/, "");
-  return Math.floor((cleaned.length * 3) / 4);
-}
-
-/**
- * Extracts a JSON object from a model response that may (despite instructions)
- * be wrapped in markdown code fences or have leading/trailing whitespace/text.
- */
-function extractJsonPayload(text: string): unknown {
-  let candidate = text.trim();
-
-  // Strip ```json ... ``` or ``` ... ``` fences if present.
-  const fenceMatch = candidate.match(/```(?:json)?\s*([\s\S]*?)\s*```/i);
-  if (fenceMatch) {
-    candidate = fenceMatch[1].trim();
-  }
-
-  // Fallback: grab the substring between the first '{' and the last '}'.
-  if (!candidate.startsWith("{")) {
-    const start = candidate.indexOf("{");
-    const end = candidate.lastIndexOf("}");
-    if (start !== -1 && end !== -1 && end > start) {
-      candidate = candidate.slice(start, end + 1);
-    }
-  }
-
-  return JSON.parse(candidate);
-}
-
-/**
- * Ensures every line item has a well-formed UUID, generating one server-side
- * if the model omitted it or produced something invalid. This keeps the
- * contract reliable even if the model deviates slightly.
- */
-function ensureLineItemIds(response: ReceiptAnalysisResponse): void {
-  const uuidPattern =
-    /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
-
-  for (const item of response.line_items) {
-    if (!item.id || !uuidPattern.test(item.id)) {
-      item.id = randomUUID();
-    }
-  }
-}
+  callClaudeForReceipt,
+  extractTextBlock,
+  parseAndValidateReceiptJson,
+  ClaudeReceiptRequest,
+} from "../lib/receiptAnalysisCore";
+import { validateImages, buildImageRequest } from "../lib/imageReceiptStrategy";
+import { validatePdf, buildPdfRequest } from "../lib/pdfReceiptStrategy";
 
 async function analyzeReceipt(
   request: HttpRequest,
   context: InvocationContext
 ): Promise<HttpResponseInit> {
-  // ---------------------------------------------------------------------
+  // -----------------------------------------------------------------------
   // 1. Parse & validate the request body
-  // ---------------------------------------------------------------------
+  // -----------------------------------------------------------------------
   let rawBody: unknown;
   try {
     rawBody = await request.json();
@@ -102,60 +46,52 @@ async function analyzeReceipt(
     };
   }
 
-  const images = parsedRequest.data;
+  const items = parsedRequest.data;
+  const pdfItems = items.filter((i) => i.mediaType === "application/pdf");
 
-  // Guard against oversized images (Anthropic limit ~5MB per image).
-  for (const [index, image] of images.entries()) {
-    const estimatedBytes = estimateBase64ByteLength(image.imageBase64);
-    if (estimatedBytes > MAX_IMAGE_BYTES) {
+  // Moved to Zod.
+  // // Business rule: a multi-page PDF is one receipt. Don't allow mixing a PDF
+  // // with other images/pages in the same request.
+  // if (pdfItems.length > 0 && items.length > 1) {
+  //   return {
+  //     status: 400,
+  //     jsonBody: {
+  //       error:
+  //         "A PDF must be submitted alone (as the only item in the array), not combined with other images or PDFs.",
+  //     },
+  //   };
+  // }
+
+  // -----------------------------------------------------------------------
+  // 2. Validate + build the Claude request via the appropriate strategy
+  // -----------------------------------------------------------------------
+  let claudeRequest: ClaudeReceiptRequest;
+
+  if (pdfItems.length === 1) {
+    const pdfError = validatePdf(pdfItems[0]);
+    if (pdfError) {
+      return { status: 400, jsonBody: { error: pdfError } };
+    }
+    claudeRequest = buildPdfRequest(pdfItems[0]);
+  } else {
+    const imageErrors = validateImages(items);
+    if (imageErrors.length > 0) {
       return {
         status: 400,
         jsonBody: {
-          error: `Image at index ${index} exceeds the maximum allowed size of ${MAX_IMAGE_BYTES} bytes.`,
+          error: imageErrors[0].message,
+          details: imageErrors,
         },
       };
     }
+    claudeRequest = buildImageRequest(items);
   }
-
-  // ---------------------------------------------------------------------
-  // 2. Build the Claude request
-  // ---------------------------------------------------------------------
-  const imageBlocks: Anthropic.Messages.ImageBlockParam[] = images.map(
-    (image) => ({
-      type: "image",
-      source: {
-        type: "base64",
-        media_type: image.mediaType as Base64ImageSource["media_type"],
-        data: image.imageBase64,
-      } satisfies Base64ImageSource,
-    })
-  );
-
-  const instructionBlock: Anthropic.Messages.TextBlockParam = {
-    type: "text",
-    text:
-      `There are ${images.length} image(s) above, in order (index 0 to ${images.length - 1
-      }). ` +
-      "Analyze them per the system instructions and return only the JSON object.",
-  };
 
   const anthropic = getAnthropicClient();
 
   let message: Anthropic.Messages.Message;
-  context.log(SYSTEM_PROMPT)
   try {
-    message = await anthropic.messages.create({
-      model: CLAUDE_MODEL,
-      max_tokens: CLAUDE_MAX_TOKENS,
-      temperature: 0,
-      system: SYSTEM_PROMPT,
-      messages: [
-        {
-          role: "user",
-          content: [...imageBlocks, instructionBlock],
-        },
-      ],
-    });
+    message = await callClaudeForReceipt(anthropic, claudeRequest);
   } catch (err) {
     context.error("Anthropic API call failed", err);
     return {
@@ -167,65 +103,63 @@ async function analyzeReceipt(
     };
   }
 
-  // ---------------------------------------------------------------------
+  // -----------------------------------------------------------------------
   // 3. Extract, parse, and validate the model's JSON response
-  // ---------------------------------------------------------------------
-  const textBlock = message.content.find(
-    (block): block is Anthropic.Messages.TextBlock => block.type === "text"
-  );
-
+  // -----------------------------------------------------------------------
+  const textBlock = extractTextBlock(message);
   if (!textBlock) {
     context.error("Model response contained no text block", message);
     return {
       status: 502,
-      jsonBody: { error: "Model returned no analyzable content." },
+      jsonBody: {
+        error: "Model returned no analyzable content.",
+        usage: {
+          inputTokens: message.usage.input_tokens,
+          outputTokens: message.usage.output_tokens,
+          cacheCreationInputTokens: message.usage.cache_creation_input_tokens ?? 0,
+          cacheReadInputTokens: message.usage.cache_read_input_tokens,
+          stop_reason: message.stop_reason,
+          stop_details: message.stop_details
+        }
+      },
     };
   }
 
-  let parsedJson: unknown;
-  try {
-    parsedJson = extractJsonPayload(textBlock.text);
-  } catch (err) {
-    context.error("Failed to parse JSON from model response", {
-      error: err,
+  const outcome = parseAndValidateReceiptJson(textBlock.text, message);
+  if (!outcome.ok) {
+    context.error("Model response failed validation", {
+      ...outcome.body,
       raw: textBlock.text,
+      usage: {
+        inputTokens: message.usage.input_tokens,
+        outputTokens: message.usage.output_tokens,
+        cacheCreationInputTokens: message.usage.cache_creation_input_tokens ?? 0,
+        cacheReadInputTokens: message.usage.cache_read_input_tokens,
+        stop_reason: message.stop_reason,
+        stop_details: message.stop_details
+      }
     });
-    return {
-      status: 502,
-      jsonBody: {
-        error: "Model response was not valid JSON.",
-      },
-    };
+    return { status: outcome.status, jsonBody: outcome.body };
   }
-
-  const parsedResponse = ReceiptAnalysisResponseSchema.safeParse(parsedJson);
-  if (!parsedResponse.success) {
-    context.error("Model JSON failed schema validation", {
-      issues: parsedResponse.error.flatten(),
-      raw: parsedJson,
-    });
-    return {
-      status: 502,
-      jsonBody: {
-        error: "Model response did not match the expected schema.",
-        details: parsedResponse.error.flatten(),
-      },
-    };
-  }
-
-  const response: ReceiptAnalysisResponse = parsedResponse.data;
-
-  // Belt-and-suspenders: guarantee valid UUIDs on every line item.
-  ensureLineItemIds(response);
 
   return {
     status: 200,
-    jsonBody: response,
+    jsonBody: {
+      ...outcome.response,
+      usage: {
+        inputTokens: message.usage.input_tokens,
+        outputTokens: message.usage.output_tokens,
+        cacheCreationInputTokens: message.usage.cache_creation_input_tokens ?? 0,
+        cacheReadInputTokens: message.usage.cache_read_input_tokens,
+        stop_reason: message.stop_reason,
+        stop_details: message.stop_details
+      }
+    }
   };
 }
 
-app.http('analyzeReceipt', {
-  methods: ['POST'],
-  authLevel: 'anonymous',
-  handler: analyzeReceipt
+app.http("analyzeReceipt", {
+  methods: ["POST"],
+  authLevel: "anonymous",
+  handler: analyzeReceipt,
 });

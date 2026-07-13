@@ -1,5 +1,5 @@
-import { ReceiptAnalysisResponse, ReceiptAnalysisResponseItems } from '../../types/ReceiptAnalysis';
-import { ReceiptSubmissionHistory } from '../../types/ReceiptSubmission';
+import { ReceiptAnalysisResponse, ReceiptAnalysisResponseItems } from '../../../types/ReceiptAnalysis';
+import { ReceiptSubmissionHistory } from '../../../types/ReceiptSubmission';
 import { CommonField } from './ReceiptCommonFields';
 
 const COMMON_FIELDS: CommonField[] = [

@@ -1,7 +1,7 @@
 import { IconHistory, IconReceipt, IconSettings } from '@tabler/icons-react';
-import { Settings, History } from '.';
-import { AppRoute, NavMeta } from '../lib/router/types';
-import { NewReceipt } from './NewReceipt';
+import { Settings, History } from '..';
+import { AppRoute, NavMeta } from '../../lib/router/types';
+import { NewReceipt } from './pages/NewReceipt';
 
 /**
  * The canonical list of application routes. Both the router (for rendering)

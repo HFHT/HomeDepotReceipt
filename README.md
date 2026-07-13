@@ -24,3 +24,5 @@ Check the new prompt
 Image resize
 Check the image resize. 
 
+
+Important: retrofit the new ReceiptAnalysisResponse from HomeDepotReview

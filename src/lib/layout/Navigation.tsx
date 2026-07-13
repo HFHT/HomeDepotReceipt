@@ -1,6 +1,6 @@
 import { ActionIcon, Group, NavLink, Stack, Text, UnstyledButton } from "@mantine/core";
 import { useLocation, useNavigate } from "react-router-dom";
-import { navRoutes } from "../../routes/registry";
+import { navRoutes } from "../../routes/field/registry";
 
 /**
  * Orientation options for {@link DesktopNavigation}.

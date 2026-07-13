@@ -1,11 +1,11 @@
 import { useEffect } from 'react';
 import { Button, Group, MultiSelect, Select, Stack, Textarea } from '@mantine/core';
 import { useForm } from '@mantine/form';
-import { useAuthStore } from '../../lib/auth/stores/authStore';
-import { useSelectsStore } from '../../lib/stores/selectsStore';
-import { useReceiptStore } from '../../stores/receiptStore';
-import { MemberList } from '../../lib/auth/components/MemberList';
-import { useNoMobileKeyboard } from '../../lib/theme/hooks/useNoMobileKeyboard';
+import { useAuthStore } from '../../../lib/auth/stores/authStore';
+import { useSelectsStore } from '../../../lib/stores/selectsStore';
+import { useReceiptStore } from '../../../stores/receiptStore';
+import { MemberList } from '../../../lib/auth/components/MemberList';
+import { useNoMobileKeyboard } from '../../../lib/theme/hooks/useNoMobileKeyboard';
 
 interface Step1FormValues {
   projectOrSubdivision: string;

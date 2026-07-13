@@ -11,11 +11,11 @@ import {
 import { SortableContext, arrayMove, rectSortingStrategy } from '@dnd-kit/sortable';
 import { IconCamera, IconUpload } from '@tabler/icons-react';
 import { notifications } from '@mantine/notifications';
-import { useReceiptStore } from '../../stores/receiptStore';
-import { useAuthStore } from '../../lib/auth/stores/authStore';
-import { analyzeReceipt } from '../../services/receiptService';
-import { getImageBlob, blobToBase64 } from '../../lib/auth/services/imageStorage';
-import { resizeImageForAnalysis } from '../../lib/services/resizeImageForAnalysis';
+import { useReceiptStore } from '../../../stores/receiptStore';
+import { useAuthStore } from '../../../lib/auth/stores/authStore';
+import { analyzeReceipt } from '../../../services/receiptService';
+import { getImageBlob, blobToBase64 } from '../../../lib/auth/services/imageStorage';
+import { resizeImageForAnalysis } from '../../../lib/services/resizeImageForAnalysis';
 import { SortableImageCard } from './SortableImageCard';
 
 /**

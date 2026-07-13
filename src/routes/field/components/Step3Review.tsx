@@ -2,16 +2,16 @@ import { useState } from 'react';
 import { Badge, Button, Flex, Grid, Modal, Stack, Text } from '@mantine/core';
 import { useMediaQuery } from '@mantine/hooks';
 import { notifications } from '@mantine/notifications';
-import { useReceiptStore } from '../../stores/receiptStore';
-import { useAuthStore } from '../../lib/auth/stores/authStore';
-import { saveReceipt } from '../../services/receiptService';
-import { getBaseFileName, buildImageFileName } from '../../utils/fileNaming';
+import { useReceiptStore } from '../../../stores/receiptStore';
+import { useAuthStore } from '../../../lib/auth/stores/authStore';
+import { saveReceipt } from '../../../services/receiptService';
+import { getBaseFileName, buildImageFileName } from '../../../utils/fileNaming';
 import { ReceiptReviewForm } from './ReceiptReviewForm';
 import { buildReceiptHistory } from './receiptHistoryDiff';
-import { ReceiptAnalysisResponse } from '../../types/ReceiptAnalysis';
-import { ReceiptSubmissionRequest } from '../../types/ReceiptSubmission';
-import { StoredImage } from '../../types/ReceiptImage';
-import { ImageUploadPlan, uploadImagesToBlob } from '../../lib/auth/services/blobUploadService';
+import { ReceiptAnalysisResponse } from '../../../types/ReceiptAnalysis';
+import { ReceiptSubmissionRequest } from '../../../types/ReceiptSubmission';
+import { StoredImage } from '../../../types/ReceiptImage';
+import { ImageUploadPlan, uploadImagesToBlob } from '../../../lib/auth/services/blobUploadService';
 
 const STATUS_LABEL: Record<string, string> = {
   success: 'Success',

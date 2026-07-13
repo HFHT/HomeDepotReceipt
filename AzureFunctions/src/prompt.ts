@@ -1,3 +1,5 @@
+/** @deprecated */
+
 export const SYSTEM_PROMPT = `You are a receipt-processing engine. You will receive one or more images representing 
 pages or photos of a SINGLE physical receipt (e.g., a long thermal receipt photographed 
 in multiple overlapping segments, or a front/back multi-page receipt). Your job is to:

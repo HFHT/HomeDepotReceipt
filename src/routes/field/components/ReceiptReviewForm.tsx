@@ -1,7 +1,7 @@
 import { useEffect } from 'react';
 import { Stack } from '@mantine/core';
 import { useForm } from '@mantine/form';
-import { ReceiptAnalysisResponse } from '../../types/ReceiptAnalysis';
+import { ReceiptAnalysisResponse } from '../../../types/ReceiptAnalysis';
 import { ReceiptCommonFields, CommonField } from './ReceiptCommonFields';
 import { ReceiptLineItemsSection } from './ReceiptLineItemsSection';
 

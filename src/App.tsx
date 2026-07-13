@@ -22,7 +22,7 @@ import {
 import { Login } from './lib/auth/components/Login';
 import { AppLayout } from './lib/layout/AppLayout';
 import { NotFound } from './routes';
-import { appRoutes } from './routes/registry';
+import { appRoutes } from './routes/field/registry';
 import { useSelectsStore } from './lib/stores/selectsStore';
 import { getProjects } from './services/receiptService';
 
